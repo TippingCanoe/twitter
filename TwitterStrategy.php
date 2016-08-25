@@ -11,6 +11,8 @@
  * @license      MIT License
  */
 
+use Request;
+
 class TwitterStrategy extends OpauthStrategy {
 	
 	/**
@@ -76,10 +78,11 @@ class TwitterStrategy extends OpauthStrategy {
 		$results =  $this->_request('POST', $this->strategy['request_token_url'], $params);
 
 		if ($results !== false && !empty($results['oauth_token']) && !empty($results['oauth_token_secret'])){
-			if (!session_id()) {
-				session_start();
+			if (!Request::session()->getId()) {
+				Request::session()->start();
 			}
-			$_SESSION['_opauth_twitter'] = $results;
+
+			Request::session()->set('_opauth_twitter', $results);
 
 			$this->_authorize($results['oauth_token']);
 		}
@@ -89,11 +92,14 @@ class TwitterStrategy extends OpauthStrategy {
 	 * Receives oauth_verifier, requests for access_token and redirect to callback
 	 */
 	public function oauth_callback() {
-		if (!session_id()) {
-			session_start();
+		if (!Request::session()->getId()) {
+			Request::session()->start();
 		}
-		$session = $_SESSION['_opauth_twitter'];
-		unset($_SESSION['_opauth_twitter']);
+
+		$session = Request::session()->get('_opauth_twitter');
+		if ($session) {
+			Request::session()->forget('_opauth_twitter');
+		}
 
 		if (!empty($_REQUEST['oauth_token']) && $_REQUEST['oauth_token'] == $session['oauth_token']) {
 			$this->tmhOAuth->config['user_token'] = $session['oauth_token'];
