@@ -78,6 +78,7 @@ class TwitterStrategy extends OpauthStrategy {
 		$results =  $this->_request('POST', $this->strategy['request_token_url'], $params);
 
 		if ($results !== false && !empty($results['oauth_token']) && !empty($results['oauth_token_secret'])){
+
 			if (!Request::session()->getId()) {
 				Request::session()->start();
 			}
