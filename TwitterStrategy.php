@@ -84,7 +84,7 @@ class TwitterStrategy extends OpauthStrategy {
 			}
 
 			Request::session()->set('_opauth_twitter', $results);
-
+			Request::session()->save();
 			$this->_authorize($results['oauth_token']);
 		}
 	}
